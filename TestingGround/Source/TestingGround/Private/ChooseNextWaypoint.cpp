@@ -5,18 +5,24 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
 #include "Public/PatrollingGuard.h"
-#include "TestingGround.h"
+#include "Public/PatrolRoute.h"
+
 
 EBTNodeResult::Type UChooseNextWaypoint::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	//TODO Protect against empty waypoints
+	//Get Patrol Route
+	auto ControlledPawn = OwnerComp.GetAIOwner()->GetPawn();
+	auto PatrolRoute = ControlledPawn->FindComponentByClass<UPatrolRoute>();
+	if (!ensure(PatrolRoute)) { return EBTNodeResult::Failed; }
 
-	//Get Patrol Points
-	auto AIController = OwnerComp.GetAIOwner();
-	auto ControlledPawn = AIController->GetPawn();
-	auto PatrollingGuard = Cast<APatrollingGuard>(ControlledPawn);
-	auto PatrolPoints = PatrollingGuard->PatrolPointsCPP;
 	
+	auto PatrolPoints = PatrolRoute->GetPatrolPoints();
+	if (PatrolPoints.Num()==0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("A Guard is missing patrol points"));
+		return EBTNodeResult::Failed;
+	}
+
 	//Set Next Patrol Point
 	auto BlackboardComp = OwnerComp.GetBlackboardComponent();
 	auto Index = BlackboardComp->GetValueAsInt(IndexKey.SelectedKeyName);
@@ -25,9 +31,6 @@ EBTNodeResult::Type UChooseNextWaypoint::ExecuteTask(UBehaviorTreeComponent& Own
 	//Cycle the index
 	auto NextIndex = (Index + 1) % PatrolPoints.Num();
 	BlackboardComp->SetValueAsInt(IndexKey.SelectedKeyName, NextIndex);
-	
-	//TODO Remove Log
-	UE_LOG(LogTemp, Warning, TEXT("Waypoint index: %i"), Index);
-	
+		
 	return EBTNodeResult::Succeeded;
 }

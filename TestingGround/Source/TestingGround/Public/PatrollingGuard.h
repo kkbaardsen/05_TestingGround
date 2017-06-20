@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Engine.h"
 #include "TP_ThirdPerson/TP_ThirdPersonCharacter.h"
 #include "PatrollingGuard.generated.h"
 
