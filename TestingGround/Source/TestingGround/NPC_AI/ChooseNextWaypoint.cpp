@@ -1,6 +1,6 @@
 // 13th_Panic 2017
 
-#include "Public/ChooseNextWaypoint.h"
+#include "NPC_AI/ChooseNextWaypoint.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
